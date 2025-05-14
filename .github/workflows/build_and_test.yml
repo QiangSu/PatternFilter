@@ -75,7 +75,7 @@ jobs:
           --threshold 2 \
           --start_pos_base_com 0 \
           --seq_length_base_com 28 \
-          --base_composition_threshold 1 \
+          --base_composition_threshold 1.0 \
           --threads 40 \
           --sort-threads 40 \
           --chunk_records 10000000 \
