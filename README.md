@@ -93,10 +93,11 @@ Before you can compile the program, you need to ensure the required development 
    ```bash
    g++ -std=c++17 -O3 -D USE_PARALLEL_SORT -o Pattern_Filter Pattern_Filter.cpp -lz -pthread -ltbb -I ./include -I ./gzstream ./gzstream/gzstream.C
    ```
-**6. Usage:**
+## Usage:
    Run the program with --help to see all available options:
+   ```bash
    ./Pattern_Filter --help
-
+   ```
    An example command using the test data (make sure test_data/ exists from the clone):
    mkdir -p R1_passed R2_extracted Hamming_rejected Basecomp_rejected Test_Temp_Dir
 ```bash
