@@ -1,0 +1,99 @@
+name: Build and Test Pattern_Filter
+
+on:
+  push:
+    branches: [ main ] # Or master, depending on your default branch
+  pull_request:
+    branches: [ main ] # Or master
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest # Use a Linux runner
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y g++ zlib1g-dev
+
+    - name: Compile the program
+      run: |
+        g++ -std=c++17 -O3 -Wall -I./include -I./gzstream ./Pattern_Filter.cpp ./gzstream/gzstream.C -o Pattern_Filter -pthread -lz -DUSE_PARALLEL_SORT
+        echo "Compilation finished. Executable:"
+        ls -l Pattern_Filter
+
+    - name: Prepare output directories for test run
+      run: |
+        mkdir -p R1_passed_test R2_extracted_test Hamming_rejected_test Basecomp_rejected_test Test_Temp_Dir_GH
+        echo "Output directories created for test run."
+        ls -d */ # Show created directories
+
+    - name: Run the program with test data
+      run: |
+        ./Pattern_Filter \
+          --r1_input test_data/extracted_100000_reads_musWT_STR_R1_001.fastq.gz \
+          --r2_input test_data/extracted_100000_reads_musWT_STR_R2_001.fastq.gz \
+          --r1_output_dir R1_passed_test \
+          --r2_output_dir R2_extracted_test \
+          --hamming_filterout_dir Hamming_rejected_test \
+          --base_composition_filterout_dir Basecomp_rejected_test \
+          --target_seq "AGCTAGCT" \
+          --seq_length 8 \
+          --start_pos 10 \
+          --threshold 2 \
+          --start_pos_base_com 20 \
+          --seq_length_base_com 30 \
+          --base_composition_threshold 0.8 \
+          --threads 2 \
+          --sort-threads 2 \
+          --chunk_records 5000 \
+          --sort-mem-mb 64 \
+          --temp_dir Test_Temp_Dir_GH \
+          --parallel-sort-alg true
+        echo "Program execution finished."
+
+    - name: Check for R1 Passed output (example check)
+      run: |
+        echo "Checking if R1 passed output file exists and is not empty..."
+        ls -l R1_passed_test/
+        if [ -s "R1_passed_test/extracted_100000_reads_musWT_STR_R1_001_R1_passed_sorted.fastq.gz" ]; then
+          echo "SUCCESS: R1 passed sorted output file found and is not empty."
+        else
+          echo "FAILURE: R1 passed sorted output file is missing or empty."
+          exit 1
+        fi
+        
+    - name: Check for R2 Extracted output (example check)
+      run: |
+        echo "Checking if R2 extracted output file exists and is not empty..."
+        ls -l R2_extracted_test/
+        if [ -s "R2_extracted_test/extracted_100000_reads_musWT_STR_R1_001_R2_extracted_sorted.fastq.gz" ]; then
+          echo "SUCCESS: R2 extracted sorted output file found and is not empty."
+        else
+          # This might be acceptable if no R1 reads passed, so R2 wouldn't be generated.
+          # For a strict test where you expect R2 output, uncomment the exit 1
+          echo "WARNING/INFO: R2 extracted sorted output file is missing or empty. This might be okay if no R1 reads passed."
+          # exit 1 
+        fi
+
+    - name: List contents of output directories
+      if: always() # Run this step even if previous steps fail, for debugging
+      run: |
+        echo "Contents of R1_passed_test:"
+        ls -lhR R1_passed_test/
+        echo "---"
+        echo "Contents of R2_extracted_test:"
+        ls -lhR R2_extracted_test/
+        echo "---"
+        echo "Contents of Hamming_rejected_test:"
+        ls -lhR Hamming_rejected_test/
+        echo "---"
+        echo "Contents of Basecomp_rejected_test:"
+        ls -lhR Basecomp_rejected_test/
+        echo "---"
+        echo "Contents of Test_Temp_Dir_GH:"
+        ls -lhR Test_Temp_Dir_GH/
+

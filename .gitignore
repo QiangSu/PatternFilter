@@ -1,0 +1,35 @@
+# Compiled Object files
+*.o
+*.slo
+*.lo
+*.obj
+*.gch
+
+# Compiled Executables
+Pattern_Filter
+a.out
+
+# Output directories from the program (example names)
+# Adjust these if your program creates different output directory names
+output_r1/
+output_r2/
+output_hamming/
+output_basecomp/
+R1_passed/
+R2_extracted/
+Hamming_rejected/
+Basecomp_rejected/
+
+# Temporary files/directories created by the program
+fastq_proc_temp_*/
+filter_sort_main_*/
+sort_temp_*/
+r2_extract_chunks_*/
+Test_Temp_Dir/ # If you use this name for temp in testing
+
+# IDE-specific files
+.vscode/
+.idea/
+*.swp
+*.swo
+
