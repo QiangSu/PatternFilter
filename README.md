@@ -89,7 +89,7 @@ Before you can compile the program, you need to ensure the required development 
    cd PatternFilter
 
    Compilation
-   g++ -std=c++17 -O3 -Wall -I./include -I./gzstream ./Pattern_Filter.cpp ./gzstream/gzstream.C -o Pattern_Filter -pthread -lz -DUSE_PARALLEL_SORT
+   g++ -std=c++17 -O3 -D USE_PARALLEL_SORT -o Pattern_Filter Pattern_Filter.cpp -lz -pthread -ltbb -I ./include -I ./gzstream ./gzstream/gzstream.C
    ```
 **6. Usage:**
    Run the program with --help to see all available options:
