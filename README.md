@@ -83,26 +83,21 @@ Before you can compile the program, you need to ensure the required development 
        *   gzstream: [http://www.cs.unc.edu/Research/compgeom/gzstream/](http://www.cs.unc.edu/Research/compgeom/gzstream/)
 
 **5. Clone the Repository (if you haven't already):**
-   First, get the code and the included libraries onto your local machine:
+   Get the code and the included libraries onto your local machine:
    ```bash
    git clone https://github.com/QiangSu/PatternFilter.git
-   cd FastqPatternFilter
-## Compilation
+   cd PatternFilter
 
-Once the dependencies are installed, navigate to the project root directory and run:
+   Compilation
+   g++ -std=c++17 -O3 -Wall -I./include -I./gzstream ./Pattern_Filter.cpp ./gzstream/gzstream.C -o Pattern_Filter -pthread -lz -DUSE_PARALLEL_SORT
+   ```
+**6. Usage:**
+   Run the program with --help to see all available options:
+   ./Pattern_Filter --help
 
+   An example command using the test data (make sure test_data/ exists from the clone):
+   mkdir -p R1_passed R2_extracted Hamming_rejected Basecomp_rejected Test_Temp_Dir
 ```bash
-g++ -std=c++17 -O3 -Wall -I./include -I./gzstream ./Pattern_Filter.cpp ./gzstream/gzstream.C -o Pattern_Filter -pthread -lz -DUSE_PARALLEL_SORT.
-
-
-##  Usage
-Run the program with --help to see all available options:
-
-./Pattern_Filter --help
-
-An example command using the test data (make sure test_data/ exists from the clone):
-mkdir -p R1_passed R2_extracted Hamming_rejected Basecomp_rejected Test_Temp_Dir
-
 ./Pattern_Filter \
   --r1_input test_data/extracted_100000_reads_musWT_STR_R1_001.fastq.gz \
   --r2_input test_data/extracted_100000_reads_musWT_STR_R2_001.fastq.gz \
@@ -123,9 +118,6 @@ mkdir -p R1_passed R2_extracted Hamming_rejected Basecomp_rejected Test_Temp_Dir
   --sort-mem-mb 128 \
   --temp_dir Test_Temp_Dir \
   --parallel-sort-alg true
+```
 
-
-
-
-
-
+   
