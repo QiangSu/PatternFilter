@@ -1,4 +1,4 @@
-# Fastq Pattern Filter and Sorter
+# Pattern-Filter filtering sc/snRNA-seq data
 
 This C++17 program filters paired-end FASTQ reads based on Hamming distance to a target sequence in R1 and base composition criteria in R1. It then sorts the R1 reads into 'passed', 'Hamming rejected', and 'base composition rejected' categories. Corresponding R2 reads for the 'passed' R1 set are extracted and sorted.
 
