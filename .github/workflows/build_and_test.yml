@@ -34,14 +34,7 @@ jobs:
         ls -l include
 
         # Updated compilation command
-        g++ -std=c++17 -O3 -Wall \
-            -D USE_PARALLEL_SORT \
-            -I ./include \
-            -I ./gzstream \
-            ./Pattern_Filter.cpp \
-            ./gzstream/gzstream.C \
-            -o Pattern_Filter \
-            -pthread -lz -ltbb # Added -ltbb, reordered for clarity
+        g++ -std=c++17 -O3 -D USE_PARALLEL_SORT -o Pattern_Filter Pattern_Filter.cpp -lz -pthread -ltbb -I ./include -I ./gzstream ./gzstream/gzstream.C
         echo "Compilation finished."
 
     # Step 4: Make the compiled executable runnable
