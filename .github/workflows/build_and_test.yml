@@ -67,15 +67,15 @@ jobs:
           --start_pos_base_com 0 \
           --seq_length_base_com 28 \
           --base_composition_threshold 1.0 \
-          --threads 2 \                 # REDUCED for CI
-          --sort-threads 2 \            # REDUCED for CI
-          --chunk_records 10000 \      # ADJUSTED for CI / test data size
-          --sort-mem-mb 1024            # SIGNIFICANTLY REDUCED for CI (1GB)
+          --threads 2 \
+          --sort-threads 2 \
+          --chunk_records 10000 \
+          --sort-mem-mb 1024 # This is the last argument, so NO backslash here
 
         echo "Pattern_Filter execution finished."
         echo "Checking for an expected output file..."
-        # CONFIRM THIS IS THE CORRECT EXPECTED OUTPUT FILENAME AND PATH
-        EXPECTED_OUTPUT_FILE="./R1_passed/passed_R1.fastq.gz"
+        # CORRECTED EXPECTED OUTPUT FILENAME AND PATH
+        EXPECTED_OUTPUT_FILE="./R1_passed/extracted_100000_reads_musWT_STR_R1_001_R1_passed_sorted.fastq.gz"
 
         if [ -f "$EXPECTED_OUTPUT_FILE" ]; then
           echo "$EXPECTED_OUTPUT_FILE found. Test presumed successful."
@@ -88,7 +88,6 @@ jobs:
           ls -l
           exit 1 # Fail the workflow
         fi
-
 
     # Optional: Step 7: Upload artifacts
     # - name: Upload Pattern_Filter executable
