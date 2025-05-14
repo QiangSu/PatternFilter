@@ -87,8 +87,10 @@ Before you can compile the program, you need to ensure the required development 
    ```bash
    git clone https://github.com/QiangSu/PatternFilter.git
    cd PatternFilter
-
+   ```
+   
    Compilation
+   ```bash
    g++ -std=c++17 -O3 -D USE_PARALLEL_SORT -o Pattern_Filter Pattern_Filter.cpp -lz -pthread -ltbb -I ./include -I ./gzstream ./gzstream/gzstream.C
    ```
 **6. Usage:**
@@ -105,19 +107,19 @@ Before you can compile the program, you need to ensure the required development 
   --r2_output_dir R2_extracted \
   --hamming_filterout_dir Hamming_rejected \
   --base_composition_filterout_dir Basecomp_rejected \
-  --target_seq "AGCTAGCT" \
-  --seq_length 8 \
-  --start_pos 10 \
+  --target_seq "TTTTTTTTTTTTTTT" \
+  --seq_length 15 \
+  --start_pos 28 \ # Positions are 0-based in this c++ program. If a desired position is 29 in a 1-based system, you should input 28.
   --threshold 2 \
-  --start_pos_base_com 20 \
-  --seq_length_base_com 30 \
-  --base_composition_threshold 0.8 \
-  --threads 2 \
-  --sort-threads 2 \
-  --chunk_records 10000 \
-  --sort-mem-mb 128 \
-  --temp_dir Test_Temp_Dir \
-  --parallel-sort-alg true
+  --start_pos_base_com 0 \
+  --seq_length_base_com 28 \
+  --base_composition_threshold 1 \
+  --threads 40 \
+  --sort-threads 40 \
+  --chunk_records 10000000 \ # Suitable for processing very large datasets (e.g., sc/snRNA-seq)
+  --sort-mem-mb 204800 \     # Approx. memory limit (MB) per sort worker - adjust based on system RAM
+  --temp_dir Test_Temp_Dir \ # Base directory for temporary files
+  --parallel-sort-alg true   # Enable parallel algorithm for in-memory sort step
 ```
 
    
