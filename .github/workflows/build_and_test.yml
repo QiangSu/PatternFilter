@@ -69,12 +69,11 @@ jobs:
           --start_pos_base_com 0 \
           --seq_length_base_com 28 \
           --base_composition_threshold 1.0 \
-          --threads 40 \
-          --sort-threads 40 \
-          --chunk_records 10000000 \
-          --sort-mem-mb 204800
-          # If your program still has a --temp_dir option, add it here:
-          # --temp_dir Test_Temp_Dir_CI \
+          --threads 2 \
+          --sort-threads 2 \
+          --chunk_records 100000 \
+          --sort-mem-mb 1024
+
 
         echo "Pattern_Filter execution finished."
         echo "Checking for an expected output file..."
