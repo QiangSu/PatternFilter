@@ -48,20 +48,18 @@ jobs:
     # Step 6: Run a more comprehensive test using your example data
     - name: Run test with example data
       run: |
-        echo "Preparing output directories (if needed, program might create them)..."
-        # Your program will now create these directories based on the arguments
-        # If your program doesn't create them, uncomment the mkdir line:
-        # mkdir -p R1_passed R2_extracted Hamming_rejected Basecomp_rejected Test_Temp_Dir_CI
+        echo "Preparing output directories (if program doesn't create them)..."
+        # If your program REQUIRES these directories to exist, uncomment:
+        # mkdir -p ./R1_passed ./R2_extracted ./Hamming_rejected ./Basecomp_rejected
 
         echo "Running Pattern_Filter with example data..."
-        # Using your new example command structure
         ./Pattern_Filter \
           --r1_input test_data/extracted_100000_reads_musWT_STR_R1_001.fastq.gz \
           --r2_input test_data/extracted_100000_reads_musWT_STR_R2_001.fastq.gz \
-          --r1_output_dir R1_passed \
-          --r2_output_dir R2_extracted \
-          --hamming_filterout_dir Hamming_rejected \
-          --base_composition_filterout_dir Basecomp_rejected \
+          --r1_output_dir ./R1_passed \
+          --r2_output_dir ./R2_extracted \
+          --hamming_filterout_dir ./Hamming_rejected \
+          --base_composition_filterout_dir ./Basecomp_rejected \
           --target_seq "TTTTTTTTTTTTTTT" \
           --seq_length 15 \
           --start_pos 28 \
@@ -69,31 +67,28 @@ jobs:
           --start_pos_base_com 0 \
           --seq_length_base_com 28 \
           --base_composition_threshold 1.0 \
-          --threads 2 \
-          --sort-threads 2 \
-          --chunk_records 100000 \
-          --sort-mem-mb 1024
-
+          --threads 2 \                 # REDUCED for CI
+          --sort-threads 2 \            # REDUCED for CI
+          --chunk_records 10000 \      # ADJUSTED for CI / test data size
+          --sort-mem-mb 1024            # SIGNIFICANTLY REDUCED for CI (1GB)
 
         echo "Pattern_Filter execution finished."
         echo "Checking for an expected output file..."
-        # Adjust this path if your program names the output file differently
-        # or if the main passed R1 output is in a different specified directory.
-        # This assumes a file named "passed_R1.fastq.gz" (or similar) is created
-        # inside the directory specified by --r1_output_dir.
-        EXPECTED_OUTPUT_FILE="R1_passed/passed_R1.fastq.gz" # Example, adjust if needed
+        # CONFIRM THIS IS THE CORRECT EXPECTED OUTPUT FILENAME AND PATH
+        EXPECTED_OUTPUT_FILE="./R1_passed/passed_R1.fastq.gz"
 
         if [ -f "$EXPECTED_OUTPUT_FILE" ]; then
           echo "$EXPECTED_OUTPUT_FILE found. Test presumed successful."
         else
           echo "ERROR: Expected output file $EXPECTED_OUTPUT_FILE was NOT found!"
           echo "Listing contents of relevant directories for debugging:"
-          echo "--- Contents of R1_passed ---"
-          ls -lR R1_passed || echo "R1_passed directory not found or empty."
+          echo "--- Contents of ./R1_passed ---"
+          ls -lR ./R1_passed || echo "./R1_passed directory not found or empty."
           echo "--- Contents of current directory ---"
           ls -l
           exit 1 # Fail the workflow
         fi
+
 
     # Optional: Step 7: Upload artifacts
     # - name: Upload Pattern_Filter executable
