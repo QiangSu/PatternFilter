@@ -92,10 +92,10 @@ Before you can compile the program, you need to ensure the required development 
 Once the dependencies are installed, navigate to the project root directory and run:
 
 ```bash
-g++ -std=c++17 -O3 -Wall -I./include -I./gzstream ./Pattern_Filter.cpp ./gzstream/gzstream.C -o Pattern_Filter -pthread -lz -DUSE_PARALLEL_SORT
+g++ -std=c++17 -O3 -Wall -I./include -I./gzstream ./Pattern_Filter.cpp ./gzstream/gzstream.C -o Pattern_Filter -pthread -lz -DUSE_PARALLEL_SORT.
 
 
-**Usage**
+##  Usage
 Run the program with --help to see all available options:
 
 ./Pattern_Filter --help
