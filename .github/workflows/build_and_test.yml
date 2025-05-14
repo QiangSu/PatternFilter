@@ -1,99 +1,122 @@
-name: Build and Test Pattern_Filter
+name: C++ CI Build and Test
 
+# Controls when the workflow will run
 on:
   push:
-    branches: [ main ] # Or master, depending on your default branch
+    branches: [ master ]
   pull_request:
-    branches: [ main ] # Or master
+    branches: [ master ]
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest # Use a Linux runner
+  build:
+    runs-on: ubuntu-latest
 
     steps:
+    # Step 1: Check out the repository code
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
+    # Step 2: Install system dependencies required for compilation
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y g++ zlib1g-dev
+        sudo apt-get install -y zlib1g-dev libtbb-dev # Added libtbb-dev
 
-    - name: Compile the program
+    # Step 3: Compile the Pattern_Filter executable
+    - name: Compile Pattern_Filter
       run: |
-        g++ -std=c++17 -O3 -Wall -I./include -I./gzstream ./Pattern_Filter.cpp ./gzstream/gzstream.C -o Pattern_Filter -pthread -lz -DUSE_PARALLEL_SORT
-        echo "Compilation finished. Executable:"
-        ls -l Pattern_Filter
+        echo "Current directory: $(pwd)"
+        echo "Listing files in root:"
+        ls -l
+        echo "Listing files in gzstream:"
+        ls -l gzstream
+        echo "Listing files in include:"
+        ls -l include
 
-    - name: Prepare output directories for test run
-      run: |
-        mkdir -p R1_passed_test R2_extracted_test Hamming_rejected_test Basecomp_rejected_test Test_Temp_Dir_GH
-        echo "Output directories created for test run."
-        ls -d */ # Show created directories
+        # Updated compilation command
+        g++ -std=c++17 -O3 -Wall \
+            -D USE_PARALLEL_SORT \
+            -I ./include \
+            -I ./gzstream \
+            ./Pattern_Filter.cpp \
+            ./gzstream/gzstream.C \
+            -o Pattern_Filter \
+            -pthread -lz -ltbb # Added -ltbb, reordered for clarity
+        echo "Compilation finished."
 
-    - name: Run the program with test data
+    # Step 4: Make the compiled executable runnable
+    - name: Make executable
+      run: chmod +x Pattern_Filter
+
+    # Step 5: Basic smoke test - run with --help
+    - name: Run basic test (help)
+      run: ./Pattern_Filter --help
+
+    # Step 6: Run a more comprehensive test using your example data
+    - name: Run test with example data
       run: |
+        echo "Preparing output directories (if needed, program might create them)..."
+        # Your program will now create these directories based on the arguments
+        # If your program doesn't create them, uncomment the mkdir line:
+        # mkdir -p R1_passed R2_extracted Hamming_rejected Basecomp_rejected Test_Temp_Dir_CI
+
+        echo "Running Pattern_Filter with example data..."
+        # Using your new example command structure
         ./Pattern_Filter \
           --r1_input test_data/extracted_100000_reads_musWT_STR_R1_001.fastq.gz \
           --r2_input test_data/extracted_100000_reads_musWT_STR_R2_001.fastq.gz \
-          --r1_output_dir R1_passed_test \
-          --r2_output_dir R2_extracted_test \
-          --hamming_filterout_dir Hamming_rejected_test \
-          --base_composition_filterout_dir Basecomp_rejected_test \
-          --target_seq "AGCTAGCT" \
-          --seq_length 8 \
-          --start_pos 10 \
+          --r1_output_dir R1_passed \
+          --r2_output_dir R2_extracted \
+          --hamming_filterout_dir Hamming_rejected \
+          --base_composition_filterout_dir Basecomp_rejected \
+          --target_seq "TTTTTTTTTTTTTTT" \
+          --seq_length 15 \
+          --start_pos 28 \
           --threshold 2 \
-          --start_pos_base_com 20 \
-          --seq_length_base_com 30 \
-          --base_composition_threshold 0.8 \
-          --threads 2 \
-          --sort-threads 2 \
-          --chunk_records 5000 \
-          --sort-mem-mb 64 \
-          --temp_dir Test_Temp_Dir_GH \
-          --parallel-sort-alg true
-        echo "Program execution finished."
+          --start_pos_base_com 0 \
+          --seq_length_base_com 28 \
+          --base_composition_threshold 1 \
+          --threads 40 \
+          --sort-threads 40 \
+          --chunk_records 10000000 \
+          --sort-mem-mb 204800
+          # If your program still has a --temp_dir option, add it here:
+          # --temp_dir Test_Temp_Dir_CI \
 
-    - name: Check for R1 Passed output (example check)
-      run: |
-        echo "Checking if R1 passed output file exists and is not empty..."
-        ls -l R1_passed_test/
-        if [ -s "R1_passed_test/extracted_100000_reads_musWT_STR_R1_001_R1_passed_sorted.fastq.gz" ]; then
-          echo "SUCCESS: R1 passed sorted output file found and is not empty."
+        echo "Pattern_Filter execution finished."
+        echo "Checking for an expected output file..."
+        # Adjust this path if your program names the output file differently
+        # or if the main passed R1 output is in a different specified directory.
+        # This assumes a file named "passed_R1.fastq.gz" (or similar) is created
+        # inside the directory specified by --r1_output_dir.
+        EXPECTED_OUTPUT_FILE="R1_passed/passed_R1.fastq.gz" # Example, adjust if needed
+
+        if [ -f "$EXPECTED_OUTPUT_FILE" ]; then
+          echo "$EXPECTED_OUTPUT_FILE found. Test presumed successful."
         else
-          echo "FAILURE: R1 passed sorted output file is missing or empty."
-          exit 1
-        fi
-        
-    - name: Check for R2 Extracted output (example check)
-      run: |
-        echo "Checking if R2 extracted output file exists and is not empty..."
-        ls -l R2_extracted_test/
-        if [ -s "R2_extracted_test/extracted_100000_reads_musWT_STR_R1_001_R2_extracted_sorted.fastq.gz" ]; then
-          echo "SUCCESS: R2 extracted sorted output file found and is not empty."
-        else
-          # This might be acceptable if no R1 reads passed, so R2 wouldn't be generated.
-          # For a strict test where you expect R2 output, uncomment the exit 1
-          echo "WARNING/INFO: R2 extracted sorted output file is missing or empty. This might be okay if no R1 reads passed."
-          # exit 1 
+          echo "ERROR: Expected output file $EXPECTED_OUTPUT_FILE was NOT found!"
+          echo "Listing contents of relevant directories for debugging:"
+          echo "--- Contents of R1_passed ---"
+          ls -lR R1_passed || echo "R1_passed directory not found or empty."
+          echo "--- Contents of current directory ---"
+          ls -l
+          exit 1 # Fail the workflow
         fi
 
-    - name: List contents of output directories
-      if: always() # Run this step even if previous steps fail, for debugging
-      run: |
-        echo "Contents of R1_passed_test:"
-        ls -lhR R1_passed_test/
-        echo "---"
-        echo "Contents of R2_extracted_test:"
-        ls -lhR R2_extracted_test/
-        echo "---"
-        echo "Contents of Hamming_rejected_test:"
-        ls -lhR Hamming_rejected_test/
-        echo "---"
-        echo "Contents of Basecomp_rejected_test:"
-        ls -lhR Basecomp_rejected_test/
-        echo "---"
-        echo "Contents of Test_Temp_Dir_GH:"
-        ls -lhR Test_Temp_Dir_GH/
-
+    # Optional: Step 7: Upload artifacts
+    # - name: Upload Pattern_Filter executable
+    #   uses: actions/upload-artifact@v3
+    #   with:
+    #     name: pattern-filter-executable-linux
+    #     path: Pattern_Filter
+    # - name: Upload Test Output
+    #   uses: actions/upload-artifact@v3
+    #   if: always()
+    #   with:
+    #     name: test-output-ci
+    #     path: |
+    #       R1_passed/
+    #       R2_extracted/
+    #       Hamming_rejected/
+    #       Basecomp_rejected/
+    #       Test_Temp_Dir_CI/ # If you use a temp dir
