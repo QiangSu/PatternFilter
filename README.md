@@ -216,7 +216,7 @@ SPLiT-seq requires two sequential runs. First, filter for the Round 2 Linker. Th
 mkdir -p R1_passed R2_extracted Hamming_rejected Basecomp_rejected Temp_Dir
 ```
 
-# Run 1: Filter Round 2 Linker
+#### Run 1: Filter Round 2 Linker
 ```bash
 ./Pattern_Filter \
   --r1_input /path/to/your_R2.fastq.gz \
@@ -235,7 +235,7 @@ mkdir -p R1_passed R2_extracted Hamming_rejected Basecomp_rejected Temp_Dir
   --sort-mem-mb 204800
 ```
 
-# Run 2: Filter Round 3 Linker
+#### Run 2: Filter Round 3 Linker
 ```bash
 ./Pattern_Filter \
   --r1_input /path/to/Step1_Passed_R2/filtered_R1.fastq.gz \
