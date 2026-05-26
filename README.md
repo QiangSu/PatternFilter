@@ -79,10 +79,15 @@ brew install tbb
 
 ---
 
-## 2. Compilation
+## 2. Clone and Compilation
 
-First, clone the repository:
 ```bash
+# Create the environment using mamba (or conda)
+mamba create -n pattern_filter_env -c conda-forge cxx-compiler zlib tbb tbb-devel -y
+
+# Activate the environment
+mamba activate pattern_filter_env
+
 git clone https://github.com/QiangSu/PatternFilter.git
 cd PatternFilter
 ```
@@ -90,7 +95,7 @@ cd PatternFilter
 Compile the program using the following command. This command enables the high-performance parallel sorting algorithm (requires Intel TBB) and points to the included gzstream library:
 
 ```bash
-g++ -std=c++17 -O3 -D USE_PARALLEL_SORT -o Pattern_Filter Pattern_Filter.cpp ./gzstream/gzstream.C -lz -pthread -ltbb -I ./gzstream
+g++ -std=c++17 -O3 -D USE_PARALLEL_SORT -o Pattern_Filter Pattern_Filter.cpp ./gzstream/gzstream.C -I ./gzstream -I $CONDA_PREFIX/include -L $CONDA_PREFIX/lib -Wl,-rpath,$CONDA_PREFIX/lib -lz -pthread -ltbb
 ```
 
 ---
