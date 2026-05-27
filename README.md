@@ -2,6 +2,10 @@
 
 Pattern-Filter is a high-performance C++17 command-line tool for filtering, sorting, and pre-processing paired-end FASTQ data from single-cell and single-nucleus RNA-sequencing experiments. It allows for precise quality control at the raw read level by validating expected molecular structures based on user-defined patterns, such as poly(T) tails, linkers, or template switching oligos (TSOs).
 
+<p align="center">
+  <img src="images/Pattern-Filter-Workflow-Overview.png" alt="Pattern-Filter Workflow Overview" width="80%">
+</p>
+
 ## Key Features
 
 *   **Multi-criteria Filtering:** Filters R1 reads based on Hamming distance to a target sequence and/or base composition (e.g., % of A/C/G/T).
